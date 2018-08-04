@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "netlify-lambda serve src-functions & vue-cli-service serve",
+    "build": "netlify-lambda build src-functions && vue-cli-service build",
     "lint:scripts": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint:styles": "stylelint 'src/**/*.+(scss|vue)'",
     "lint": "yarn run lint:scripts && yarn run lint:styles"
@@ -16,6 +16,7 @@
     "@avalanche/setting-spacings": "^4.0.0-alpha.6",
     "@vue/cli-plugin-babel": "^3.0.0-rc.10",
     "@vue/cli-service": "^3.0.0-rc.10",
+    "netlify-lambda": "^0.4.0",
     "node-sass": "^4.9.2",
     "node-sass-magic-importer": "^5.2.0",
     "prerender-spa-plugin": "^3.2.1",
