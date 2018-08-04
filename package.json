@@ -16,12 +16,16 @@
     "@avalanche/setting-spacings": "^4.0.0-alpha.6",
     "@vue/cli-plugin-babel": "^3.0.0-rc.10",
     "@vue/cli-service": "^3.0.0-rc.10",
+    "axios": "^0.18.0",
+    "marked": "^0.4.0",
     "netlify-lambda": "^0.4.0",
     "node-sass": "^4.9.2",
     "node-sass-magic-importer": "^5.2.0",
     "prerender-spa-plugin": "^3.2.1",
     "reset-css": "^4.0.1",
     "sass-loader": "^7.1.0",
+    "slug": "^0.9.1",
+    "storyblok-js-client": "^1.0.14",
     "vue": "^2.5.17"
   },
   "devDependencies": {
