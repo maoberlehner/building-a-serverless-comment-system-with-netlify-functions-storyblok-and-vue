@@ -11,6 +11,9 @@ const API_URL = `https://api.storyblok.com/v1/spaces`;
 // https://app.storyblok.com/#!/me/spaces/46870/stories/index/191712
 const COMMENT_FOLDER_ID = 191712;
 const SPACE_ID = 46870;
+// reCAPTCHA settings.
+const { RECAPTCHA_SECRET } = process.env;
+const RECAPTCHA_VERIFY_URL = `https://www.google.com/recaptcha/api/siteverify`;
 
 // We create a new axios instance, pre-configured
 // to handle Storyblok API requests.
@@ -57,6 +60,12 @@ function addCommentToArticle({ article, comment }) {
   });
 }
 
+function isHuman(recaptchaToken) {
+  return axios
+    .post(`${RECAPTCHA_VERIFY_URL}?response=${recaptchaToken}&secret=${RECAPTCHA_SECRET}`)
+    .then(({ data }) => data.score > 0.5);
+}
+
 exports.handler = async (event, context, callback) => {
   try {
     // Do not handle requests if the request
@@ -72,12 +81,13 @@ exports.handler = async (event, context, callback) => {
 
     const {
       articleId,
+      recaptchaToken,
       text,
       title,
     } = JSON.parse(event.body);
 
     // Do not handle requests with missing data.
-    if (!articleId || !text || !title) {
+    if (!articleId || !recaptchaToken || !text || !title) {
       callback(null, {
         statusCode: 422,
         body: JSON.stringify({ status: `Unprocessable Entity` }),
@@ -85,13 +95,15 @@ exports.handler = async (event, context, callback) => {
       return;
     }
 
-    const articlePromise = loadArticle(articleId);
-    const commentPromise = saveComment({ text, title });
+    if (await isHuman(recaptchaToken)) {
+      const articlePromise = loadArticle(articleId);
+      const commentPromise = saveComment({ text, title });
 
-    const article = await articlePromise;
-    const comment = await commentPromise;
+      const article = await articlePromise;
+      const comment = await commentPromise;
 
-    await addCommentToArticle({ article, comment });
+      await addCommentToArticle({ article, comment });
+    }
 
     callback(null, {
       statusCode: 200,

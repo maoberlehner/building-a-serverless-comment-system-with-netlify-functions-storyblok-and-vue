@@ -106,10 +106,12 @@ export default {
         uuid: Date.now(),
       });
 
+      const recaptchaToken = await this.recaptchaToken();
       // Send the data to the endpoint
       // provided by our Serverless Function.
       await axios.post(`.netlify/functions/add-comment`, {
         articleId: this.story.id,
+        recaptchaToken,
         text,
         title,
       });
@@ -119,6 +121,14 @@ export default {
       // and all comments related to the story.
       const response = await api.get(`cdn/stories/home`, { resolve_relations: `comments` });
       this.story = response.data.story;
+    },
+    recaptchaToken() {
+      return new Promise((resolve) => {
+        grecaptcha.ready(async () => {
+          const token = await grecaptcha.execute(`6LdsOmgUAAAAAHCH1GM7fH9WZwvLAHc6PDHjBBxd`, { action: `comment` });
+          resolve(token);
+        });
+      });
     },
   },
 };
