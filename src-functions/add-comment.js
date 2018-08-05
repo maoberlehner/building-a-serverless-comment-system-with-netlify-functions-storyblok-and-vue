@@ -43,6 +43,20 @@ function saveComment({ text, title }) {
   });
 }
 
+function loadArticle(id) {
+  return storyblok.get(`${SPACE_ID}/stories/${id}`);
+}
+
+function addCommentToArticle({ article, comment }) {
+  const { story } = article.data;
+  story.content.comments.push(comment.data.story.uuid);
+
+  return storyblok.put(`${SPACE_ID}/stories/${story.id}`, {
+    publish: 1,
+    story,
+  });
+}
+
 exports.handler = async (event, context, callback) => {
   try {
     // Do not handle requests if the request
@@ -57,12 +71,13 @@ exports.handler = async (event, context, callback) => {
     }
 
     const {
+      articleId,
       text,
       title,
     } = JSON.parse(event.body);
 
     // Do not handle requests with missing data.
-    if (!text || !title) {
+    if (!articleId || !text || !title) {
       callback(null, {
         statusCode: 422,
         body: JSON.stringify({ status: `Unprocessable Entity` }),
@@ -70,7 +85,13 @@ exports.handler = async (event, context, callback) => {
       return;
     }
 
-    await saveComment({ text, title });
+    const articlePromise = loadArticle(articleId);
+    const commentPromise = saveComment({ text, title });
+
+    const article = await articlePromise;
+    const comment = await commentPromise;
+
+    await addCommentToArticle({ article, comment });
 
     callback(null, {
       statusCode: 200,

@@ -109,6 +109,7 @@ export default {
       // Send the data to the endpoint
       // provided by our Serverless Function.
       await axios.post(`.netlify/functions/add-comment`, {
+        articleId: this.story.id,
         text,
         title,
       });
